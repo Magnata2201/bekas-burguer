@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Gerenciamento de Cupons</title>
+  <link rel="icon" href="icon.ico" type="image/x-icon">
+  <link rel="stylesheet" href="cupons.css" />
+  <script type="module" src="firebase-banco.js"></script>
+  <script>
+      function checarAcesso() {
+          if (!localStorage.getItem("usuarioLogado")) {
+              document.documentElement.style.display = "none";
+              window.location.replace("index.html");
+          }
+      }
+      checarAcesso();
+      window.addEventListener("pageshow", function(event) {
+          if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+              checarAcesso();
+          }
+      });
+  </script>
+  <style>
+    .lista-cupons-container {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 15px;
+      width: 100%;
+      margin-top: 20px;
+      max-height: 52vh;
+      overflow-y: auto;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      background: #fdfdfd;
+    }
+    .card-cupom {
+      background: white;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      padding: 15px;
+      cursor: pointer;
+      text-align: left;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .card-cupom:hover {
+      transform: translateY(-2px);
+      border-color: #007bff;
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    }
+    .card-cupom.cancelado {
+      background-color: #fce8e6;
+      border-color: #f5c2c2;
+    }
+    .card-cupom h4 {
+      margin: 0 0 8px 0;
+      color: #007bff;
+      font-size: 14px;
+    }
+    .card-cupom.cancelado h4 {
+      color: #c0392b;
+    }
+    .card-cupom p {
+      margin: 4px 0;
+      font-size: 13px;
+      color: #555;
+    }
+    .layout-dois-lados {
+      display: flex;
+      gap: 20px;
+      width: 100%;
+      align-items: flex-start;
+      margin-top: 15px;
+    }
+    .lado-esquerdo-lista { flex: 1.4; }
+    .lado-direito-visualizador { flex: 1; position: sticky; top: 10px; }
+
+    .botoes-cupom-acoes {
+      display: flex;
+      gap: 10px;
+      margin-top: 15px;
+      width: 100%;
+      max-width: 280px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+    .botoes-cupom-acoes button {
+      flex: 1;
+      padding: 12px 10px;
+      font-weight: bold;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: 0.2s;
+    }
+    .botoes-cupom-acoes button:hover { filter: brightness(0.9); }
+
+    /* ===== Cupom térmico (preview) — espelha exatamente o impresso pelo caixa ===== */
+    .cupom-print {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 15px;
+      width: 260px;
+      margin: 0 auto;
+      padding: 10px 5px;
+      color: #000;
+      background: #fffdf5;
+      border: 1px dashed #b5b5b5;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+      position: relative;
+    }
+    .cupom-print .header-container { display: block; min-height: 55px; position: relative; margin-bottom: 5px; }
+    .cupom-print .loja-info { width: 160px; text-align: left; }
+    .cupom-print .loja-info h2 { margin: 0; font-size: 16px; font-weight: bold; text-transform: uppercase; line-height: 1.2; }
+    .cupom-print .loja-info p { margin: 2px 0 0 0; font-size: 11px; text-align: left; }
+    .cupom-print .pedido-box {
+      position: absolute; top: 0; right: 0;
+      border: 2px solid #000; padding: 4px 8px; text-align: center;
+      background: #fff; min-width: 65px;
+    }
+    .cupom-print .pedido-box-label { font-size: 9px; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: -2px; }
+    .cupom-print .pedido-box-numero { font-size: 26px; font-weight: bold; display: block; line-height: 1.1; }
+    .cupom-print .divider { border-top: 1px dashed #000; margin: 5px 0; }
+    .cupom-print p.titulo-cupom { margin: 2px 0; text-align: center; font-size: 13px; }
+    .cupom-print table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 5px 0; }
+    .cupom-print th { border-bottom: 1px dashed #000; padding-bottom: 3px; text-align: left; font-size: 13px; }
+    .cupom-print td { padding: 3px 0; vertical-align: top; word-wrap: break-word; }
+    .cupom-print .right { text-align: right; }
+    .cupom-print .center { text-align: center; }
+    .cupom-print .bold { font-weight: bold; }
+    .cupom-print .info-line { display: flex; justify-content: space-between; font-size: 13px; margin: 2px 0; }
+
+    @media (max-width: 768px) {
+      .layout-dois-lados { flex-direction: column; }
+      .lado-direito-visualizador { position: static; width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <iframe id="iframe-impressao" style="display:none;"></iframe>
+
+  <div class="container-cupons" style="max-width: 1100px;">
+    <h2>Gerenciamento de Cupons</h2>
+
+    <div class="quick-action-buttons" style="width: 100%; margin-bottom: 5px; display: flex; gap: 10px; flex-wrap: wrap;">
+      <input type="text" id="inputBuscarCupom" placeholder="Pesquisar por N° do Pedido ou ID do Cupom..." style="flex: 1; min-width: 180px; padding: 12px; border-radius: 8px; border: 1px solid #ccc;" />
+      <input type="date" id="inputFiltrarData" style="padding: 12px; border-radius: 8px; border: 1px solid #ccc; font-family: inherit;" onchange="filtrarCupons()" />
+      <button onclick="filtrarCupons()" style="background-color: #007bff; color: white; width: auto; padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer;">Buscar</button>
+      <button onclick="limparBuscaCupom()" style="background-color: #6c757d; color: white; width: auto; padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer;">Limpar Filtros</button>
+      <button onclick="window.location.href='sistema.html'" style="background-color: #34495e; color: white; width: auto; padding: 12px 25px; border-radius: 8px; border: none; cursor: pointer;">Voltar</button>
+    </div>
+
+    <div class="layout-dois-lados">
+      <div class="lado-esquerdo-lista">
+        <h3 style="text-align: left; font-size: 16px; color: #2c3e50; margin-bottom: 5px;">📋 Últimos Pedidos Emitidos</h3>
+        <div class="lista-cupons-container" id="container-lista-cupons">
+            <p style="text-align: center; grid-column: 1/-1; color: #777; padding: 20px;">Carregando pedidos...</p>
+        </div>
+      </div>
+
+      <div class="lado-direito-visualizador">
+        <h3 style="text-align: center; font-size: 16px; color: #2c3e50; margin-bottom: 10px;">🔍 Visualização do Pedido</h3>
+        <div class="section" id="secao-resultado-cupom" style="display: flex; flex-direction: column; width: 100%; margin-top: 0; min-height: 200px; background: transparent; border: none; padding: 0;">
+          <div id="resultado-cupom-content" style="width: 100%;">
+            <p style="text-align: center; color: #777; padding-top: 40px; background: #fff; padding: 30px; border-radius: 8px; border: 1px solid #ddd;">Selecione um pedido da lista para gerenciar ou reimprimir.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="cupons.js"></script>
+</body>
+</html>

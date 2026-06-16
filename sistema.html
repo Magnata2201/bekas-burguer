@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Painel de Controle | Bekas Burguer</title>
+    <link rel="icon" href="icon.ico" type="image/x-icon">
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="firebase-banco.js"></script>
+    <script>
+        function checarAcesso() {
+            if (!localStorage.getItem("usuarioLogado")) {
+                document.documentElement.style.display = "none";
+                window.location.replace("index.html");
+            }
+        }
+        checarAcesso();
+    </script>
+</head>
+<body id="painel-body">
+
+    <header id="main-header-bar">
+        <div class="header-logo">
+            <span>🛒 BEKAS BURGUER - Estoque</span>
+        </div>
+        
+        <div class="header-actions">
+            <button onclick="exportarBackup()" class="btn-top">📤 Backup</button>
+            <input type="file" id="inputBackup" style="display:none" />
+            <button onclick="document.getElementById('inputBackup').click()" class="btn-top">📥 Importar</button>
+            
+            <button id="btn-config-index" class="settings-button admin-only btn-top" onclick="abrirModalConfigTema()">🎨 Personalizar Tema</button>
+            
+            <div id="userMenuContainerGlobal">
+                <div id="userMenu" class="menu-item btn-top">👤 <span id="nome-usuario-logado">Usuário</span>
+                    <div id="userMenuOptions" class="submenu">
+                        <button class="admin-only" onclick="abrirModalCriarUsuario()">Criar usuário</button>
+                        <button class="admin-only" onclick="abrirModalEditarUsuario()">Editar usuários</button>
+                        <button class="admin-only" onclick="abrirModalExcluirUsuario()">Excluir usuários</button>
+                        <button class="admin-only" onclick="abrirModalListarUsuarios()">Todos os usuários</button>
+                        <button onclick="sairDoSistema()" style="color: #e74c3c; font-weight: bold;">Sair do Sistema</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="dashboard-container">
+        <div class="dashboard-grid">
+            
+             <div class="dash-card card-cupons" onclick="window.location.href='caixa.html'">
+                <div class="card-icon">🧾</div>
+                <h3>Frente de caixa</h3>
+                <p>Reimprimir ou cancelar recibos</p>
+            </div>
+            
+            <div class="dash-card card-cupons" onclick="window.location.href='cupons.html'">
+                <div class="card-icon">🏷️</div>
+                <h3>Gerenciar Cupons</h3>
+                <p>Reimprimir ou cancelar recibos</p>
+            </div>
+
+            <div class="dash-card card-estoque" onclick="abrirModalRegistrarProduto()">
+                <div class="card-icon">➕</div>
+                <h3>Registrar Produto</h3>
+                <p>Adicionar novo item no estoque</p>
+            </div>
+
+            <div class="dash-card card-lista" onclick="window.location.href='todos-produtos.html'">
+                <div class="card-icon">📦</div>
+                <h3>Todos os Produtos</h3>
+                <p>Visualizar catálogo completo</p>
+            </div>
+
+            <div class="dash-card card-verificar" onclick="abrirModalVerificarQuantidade()">
+                <div class="card-icon">🔍</div>
+                <h3>Verificar Quantidade</h3>
+                <p>Consultar item por código ou nome</p>
+            </div>
+
+            <div class="dash-card card-alerta" onclick="window.location.href='fim_estoque.html'">
+                <div class="card-icon">⚠️</div>
+                <h3>Fim de Estoque</h3>
+                <p>Relatório de produtos esgotando</p>
+            </div>
+
+            <div class="dash-card card-financeiro" onclick="window.location.href='faturamento.html'">
+                <div class="card-icon">💰</div>
+                <h3>Faturamento Líquido</h3>
+                <p>Painel de lucros e despesas</p>
+            </div>
+
+            <div class="dash-card card-relatorio" onclick="window.location.href='relatorio.html'">
+                <div class="card-icon">📅</div>
+                <h3>Relatório Diário</h3>
+                <p>Resumo de caixa do dia</p>
+            </div>
+        </div>
+
+        <div class="admin-danger-zone admin-only" style="margin-top: 40px; text-align: center;">
+            <button id="confirmarApagarDados" onclick="confirmarApagarDados()" style="background:#e74c3c; color:white; padding:12px 25px; border:none; border-radius:8px; cursor:pointer; font-weight:bold; box-shadow: 0 4px 6px rgba(231,76,60,0.3);">🗑️ Apagar Todos os Registros do Sistema</button>
+        </div>
+    </main>
+
+    <footer class="system-footer" id="main-footer-bar">
+        <p>© 2026 - Sistema de Controle de Estoque | Desenvolvido por Bruno Rafael | 📱 WhatsApp (11) 91352-9132 | 📷 Instagram @bruno_nago22 | <a href="https://www.anacletotec.com.br" target="_blank" style="color: inherit; text-decoration: underline;">www.anacletotec.com.br</a></p>
+    </footer>
+
+    <div id="modal-configuracoes-tema" class="modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 9999; align-items: center; justify-content: center;">
+        <div style="background: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 450px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+            <h2 style="margin-top: 0; color: #2c3e50; border-bottom: 2px solid #3498db; padding-bottom: 10px;">⚙️ Personalizar Tema Visual</h2>
+            
+            <h3 style="font-size: 14px; margin-top: 20px; color: #7f8c8d;">🎨 CORES DO CABEÇALHO / RODAPÉ</h3>
+            <div style="display: flex; gap: 15px; margin-top: 10px;">
+                <div style="flex: 1;">
+                    <label style="display:block; font-weight:bold; font-size: 12px; margin-bottom: 5px;">Cor de Fundo:</label>
+                    <input type="color" id="cor-fundo-header" style="width: 100%; height: 45px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
+                </div>
+                <div style="flex: 1;">
+                    <label style="display:block; font-weight:bold; font-size: 12px; margin-bottom: 5px;">Cor do Texto e Botões:</label>
+                    <input type="color" id="cor-texto-header" style="width: 100%; height: 45px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer;">
+                </div>
+            </div>
+
+            <h3 style="font-size: 14px; margin-top: 25px; color: #7f8c8d;">🖼️ IMAGEM DE FUNDO</h3>
+            <label style="display:block; margin-top:10px; font-weight:bold; font-size: 12px;">Wallpaper da Tela Inicial:</label>
+            <input type="file" id="input-fundo-tela" accept="image/*" style="margin-top: 5px; width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px;">
+            <div style="display: flex; gap: 10px; margin-top: 10px;">
+                <button onclick="salvarImagemFundo()" style="background: #27ae60; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; flex: 1; font-weight: bold;">Aplicar Fundo</button>
+                <button onclick="removerImagemFundo()" style="background: #e74c3c; color: white; padding: 10px; border: none; border-radius: 5px; cursor: pointer; flex: 1; font-weight: bold;">Remover Fundo</button>
+            </div>
+
+            <div style="display: flex; gap: 15px; margin-top: 35px;">
+                <button onclick="fecharModalConfigTema()" style="flex: 1; padding: 12px; background: #95a5a6; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Fechar</button>
+                <button onclick="salvarCoresTema()" style="flex: 1; padding: 12px; background: #3498db; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: bold;">Salvar Cores</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="senhaModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSenhaModal()">&times;</span>
+            <p>Digite a senha para editar o estoque:</p>
+            <input type="password" id="senhaInput" onkeypress="verificarSenha(event)" />
+        </div>
+    </div>
+
+    <div id="modalEditarProduto" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModalEditarProduto()">&times;</span>
+            <h2>Verificar e Editar Produto</h2> 
+            <label for="editProdutoCodigo">Código:</label>
+            <input type="text" id="editProdutoCodigo" /> 
+            <label for="editProdutoNome">Nome:</label>
+            <input type="text" id="editProdutoNome" readonly/> 
+            <label for="editProdutoQuantidade">Quantidade:</label>
+            <input type="number" id="editProdutoQuantidade" min="0" readonly/> 
+            <label for="editProdutoPreco">Preço (R$):</label>
+            <input type="number" id="editProdutoPreco" step="0.01" readonly/> 
+            <button onclick="solicitarSenha()">✏️ Editar Informações</button> 
+            <button onclick="salvarEdicaoProduto()">✅ Salvar Alterações</button>
+            <button onclick="fecharModalEditarProduto()" class="cancel">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="modalRegistrarProduto" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="fecharModalRegistrarProduto()">&times;</span>
+            <h2>Registrar Novo Produto</h2>
+            <label for="newBarcodeModal">Código de Barras:</label>
+            <input type="text" id="newBarcodeModal" placeholder="Código de Barras" />
+            <label for="newNameModal">Nome do Produto:</label>
+            <input type="text" id="newNameModal" placeholder="Nome do Produto" />
+            <label for="newStockModal">Quantidade:</label>
+            <input type="number" id="newStockModal" value="1" min="1" placeholder="Quantidade" />
+            <label for="newPriceModal">Valor (R$):</label>
+            <input type="number" id="newPriceModal" step="0.01" placeholder="Valor (R$)" />
+            <button onclick="registerProductModal()">✅ Registrar Produto</button>
+            <button onclick="fecharModalRegistrarProduto()" class="cancel">Cancelar</button>
+        </div>
+    </div>
+
+    <div id="modalCriarUsuario" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 9999;">
+      <div style="background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 400px; text-align: center;">
+        <h2>Criar Usuário</h2>
+        <input type="text" id="nomeUsuario" placeholder="Nome do usuário" style="width: 100%; padding: 10px; margin: 15px 0 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+        <input type="password" id="senhaUsuario" placeholder="Senha do usuário" style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+        <button onclick="criarUsuario()" style="width: 100%; padding: 12px; background: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 10px;">Salvar</button>
+        <button onclick="fecharModal('modalCriarUsuario')" style="width: 100%; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">Cancelar</button>
+      </div>
+    </div>
+
+    <div id="modalEditarUsuario" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 9999;">
+      <div style="background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 400px; text-align: center;">
+        <h2>Editar Senha</h2>
+        <select id="selectUsuarioEditar" style="width: 100%; padding: 10px; margin: 15px 0 10px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;"></select>
+        <input type="password" id="senhaUsuarioEditar" placeholder="Digite a nova senha" style="width: 100%; padding: 10px; margin-bottom: 20px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;">
+        <button onclick="editarUsuario()" style="width: 100%; padding: 12px; background: #007bff; color: white; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 10px;">Atualizar Senha</button>
+        <button onclick="fecharModal('modalEditarUsuario')" style="width: 100%; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">Cancelar</button>
+      </div>
+    </div>
+
+    <div id="modalExcluirUsuario" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 9999;">
+      <div style="background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 400px; text-align: center;">
+        <h2 style="color: #dc3545;">Excluir Usuário</h2>
+        <select id="selectUsuarioExcluir" style="width: 100%; padding: 10px; margin: 15px 0 20px 0; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box;"></select>
+        <button onclick="excluirUsuario()" style="width: 100%; padding: 12px; background: #dc3545; color: white; border: none; border-radius: 5px; cursor: pointer; margin-bottom: 10px;">Excluir Definitivamente</button>
+        <button onclick="fecharModal('modalExcluirUsuario')" style="width: 100%; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer;">Cancelar</button>
+      </div>
+    </div>
+
+    <div id="modalListarUsuarios" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); align-items: center; justify-content: center; z-index: 9999;">
+      <div style="background: white; padding: 25px; border-radius: 8px; width: 90%; max-width: 400px;">
+        <h2 style="text-align: center; border-bottom: 2px solid #007bff; padding-bottom: 10px; margin-top: 0; color: #333 !important;">Usuários do Sistema</h2>
+        <div id="user-list" style="max-height: 250px; overflow-y: auto; margin-bottom: 20px; margin-top: 15px; color: #333 !important;"></div>
+        <button onclick="fecharModal('modalListarUsuarios')" style="width: 100%; padding: 12px; background: #6c757d; color: white; border: none; border-radius: 5px; cursor: pointer; font-weight: bold;">Fechar Lista</button>
+      </div>
+    </div>
+
+    <div id="notification" class="notification"></div>
+    <script src="script.js"></script>
+    <script>
+        function sairDoSistema() {
+            localStorage.removeItem("usuarioLogado");
+            localStorage.removeItem("userRole");
+            window.location.replace("index.html");
+        }
+        
+        // Aplica o tema visual (Cores e Fundo) assim que a página carrega
+        document.addEventListener("DOMContentLoaded", aplicarTemaVisual);
+    </script>
+</body>
+</html>
