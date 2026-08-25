@@ -1,4 +1,4 @@
-// cupons.js — pré-visualização e reimpressão IDÊNTICAS ao cupom impresso no caixa.
+// cupons.js — pré-visualização e reimpressão ajustadas para 50mm alto contraste.
 
 function obterDados(chave) {
     const dados = localStorage.getItem(chave);
@@ -25,10 +25,6 @@ function converterDataISOparaBR(dataIso) {
     return p.length === 3 ? `${p[2]}/${p[1]}/${p[0]}` : dataIso;
 }
 
-/* ============================================================
-   Agrupa as movimentações por cupom mantendo o número do pedido
-   exatamente como foi salvo pelo caixa (campo numeroPedido).
-============================================================ */
 function carregarEAgruparCupons() {
     const movimentacoes = obterDados("movimentacoes") || {};
     const mapaCupons = {};
@@ -42,7 +38,6 @@ function carregarEAgruparCupons() {
         lista.forEach(venda => {
             if (!venda.idCupom) return;
 
-            // Preserva o número salvo pelo caixa OU gera sequencial diário
             if (!numPedidoMap[venda.idCupom]) {
                 numPedidoMap[venda.idCupom] = venda.numeroPedido
                     ? String(venda.numeroPedido).padStart(2, '0')
@@ -170,11 +165,6 @@ function limparBuscaCupom() {
     cupomSelecionadoAtual = null;
 }
 
-/* ============================================================
-   Builder ÚNICO do HTML interno do cupom — espelho fiel do que
-   o caixa imprime em imprimirCupom(). Usado tanto no preview
-   quanto na reimpressão para garantir 100% de paridade.
-============================================================ */
 function montarConteudoCupom(cupom) {
     const configLoja = obterDados("configLoja") || { nome: "Nome da Loja", cnpj: "00.000.000/0000-00" };
     const dataBR = converterDataISOparaBR(cupom.data);
@@ -205,31 +195,32 @@ function montarConteudoCupom(cupom) {
     html +=   "</div>";
     html += "</div>";
     html += "<div class='divider'></div>";
-    html += "<p class='bold titulo-cupom'>" + (isCancelado ? "*** PEDIDO CANCELADO ***" : "CUPOM NÃO FISCAL") + "</p>";
+    html += "<p class='titulo-cupom'>" + (isCancelado ? "*** CANCELADO ***" : "NÃO FISCAL") + "</p>";
     html += "<div class='divider'></div>";
-    html += "<div class='info-line'><span>Data: " + dataHora + "</span></div>";
-    html += "<div class='info-line'><span>Operador: " + operador + "</span><span>Cupom: " + cupomIdText + "</span></div>";
+    html += "<div class='info-line'><span>" + dataHora + "</span></div>";
+    html += "<div class='info-line'><span>Op:" + operador.substring(0,6) + "</span><span>ID:" + cupomIdText.substring(0,5) + "</span></div>";
     html += "<div class='divider'></div>";
-    html += "<table><thead><tr><th>QTD</th><th>DESCRIÇÃO</th><th class='right'>TOTAL</th></tr></thead><tbody>";
+    html += "<table><thead><tr><th>QTD</th><th>DESC</th><th class='right'>TOT</th></tr></thead><tbody>";
+    
     cupom.itens.forEach(item => {
         html += "<tr>" +
                 "<td class='center'>" + item.quantidade + "</td>" +
-                "<td>" + (item.nome || "").substring(0, 18) + "</td>" +
+                "<td>" + (item.nome || "").substring(0, 12) + "</td>" +
                 "<td class='right'>" + (item.valor * item.quantidade).toFixed(2) + "</td>" +
                 "</tr>";
     });
     html += "</tbody></table><div class='divider'></div>";
 
     if (isCancelado) {
-        html += "<div class='info-line bold' style='font-size:15px; color:#777; text-decoration:line-through;'><span>TOTAL A PAGAR:</span><span>R$ " + totalReal.toFixed(2) + "</span></div>";
-        html += "<div class='info-line bold' style='font-size:15px; color:#c0392b;'><span>VALOR ESTORNADO:</span><span>R$ " + totalReal.toFixed(2) + "</span></div>";
+        html += "<div class='info-line' style='font-size:11px; text-decoration:line-through;'><span>TOTAL:</span><span>R$ " + totalReal.toFixed(2) + "</span></div>";
+        html += "<div class='info-line' style='font-size:11px;'><span>ESTORNO:</span><span>R$ " + totalReal.toFixed(2) + "</span></div>";
     } else {
-        html += "<div class='info-line bold' style='font-size:15px;'><span>TOTAL A PAGAR:</span><span>R$ " + cupom.total.toFixed(2) + "</span></div>";
+        html += "<div class='info-line' style='font-size:12px;'><span>TOTAL:</span><span>R$ " + cupom.total.toFixed(2) + "</span></div>";
     }
     html += "<div class='divider'></div>";
-    html += "<div class='info-line'><span>FORMA PAGAMENTO:</span><span>" + (cupom.formaPagamento || "").toUpperCase() + "</span></div>";
+    html += "<div class='info-line'><span>PAGTO:</span><span>" + (cupom.formaPagamento || "").toUpperCase() + "</span></div>";
     html += "<div class='divider'></div>";
-    html += "<p style='margin-top:10px; font-weight:bold; text-align:center;'>Obrigado pela preferência!</p>";
+    html += "<p style='margin-top:5px; text-align:center;'>Obrigado!</p>";
     html += "<p style='text-align:center;'>Volte Sempre!</p>";
 
     return html;
@@ -244,7 +235,7 @@ function exibirDetalhesCupom(cupom) {
     let html = "<div id='area-impressao-cupom' class='cupom-print'>" + montarConteudoCupom(cupom) + "</div>";
 
     html += "<div class='botoes-cupom-acoes'>";
-    html += "<button onclick='reimprimirCupomCentral()' style='background-color:#2980b9; color:white;'>🖨️ Reimprimir</button>";
+    html += "<button onclick='reimprimirCupomCentral()' style='background-color:#2980b9; color:white;'>🖨️ Imprimir</button>";
     if (!isCancelado) {
         html += "<button onclick='cancelarCupomCentral()' style='background-color:#c0392b; color:white;'>❌ Cancelar</button>";
     }
@@ -253,32 +244,30 @@ function exibirDetalhesCupom(cupom) {
     content.innerHTML = html;
 }
 
-/* ============================================================
-   Reimpressão — usa o MESMO CSS/HTML do cupom impresso no caixa
-   garantindo paridade visual 1:1 com o impresso original.
-============================================================ */
 function reimprimirCupomCentral() {
     if (!cupomSelecionadoAtual) return;
     const iframe = document.getElementById("iframe-impressao");
     const doc = iframe.contentDocument || iframe.contentWindow.document;
 
+    // Adicionado asterisco (*) forçando preto e bold máximo (!important)
     const cssCupom =
         "@page { margin: 0; } " +
-        "body { font-family: 'Courier New', Courier, monospace; font-size: 15px; width: 260px; margin: 0 auto; padding: 10px 5px; color: #000; position: relative; } " +
-        ".header-container { display: block; min-height: 55px; position: relative; margin-bottom: 5px; } " +
-        ".loja-info { width: 160px; text-align: left; } " +
-        ".loja-info h2 { margin: 0; font-size: 16px; font-weight: bold; text-transform: uppercase; line-height: 1.2; } " +
-        ".loja-info p { margin: 2px 0 0 0; font-size: 11px; text-align: left; } " +
-        ".pedido-box { position: absolute; top: 0; right: 0; border: 2px solid #000; padding: 4px 8px; text-align: center; background: #fff; min-width: 65px; } " +
-        ".pedido-box-label { font-size: 9px; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: -2px; } " +
-        ".pedido-box-numero { font-size: 26px; font-weight: bold; display: block; line-height: 1.1; } " +
-        ".divider { border-top: 1px dashed #000; margin: 5px 0; } " +
-        "p.titulo-cupom { margin: 2px 0; text-align: center; font-size: 13px; } " +
-        "table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 5px 0; } " +
-        "th { border-bottom: 1px dashed #000; padding-bottom: 3px; text-align: left; font-size: 13px; } " +
-        "td { padding: 3px 0; vertical-align: top; word-wrap: break-word; } " +
-        ".right { text-align: right; } .center { text-align: center; } .bold { font-weight: bold; } " +
-        ".info-line { display: flex; justify-content: space-between; font-size: 13px; margin: 2px 0; }";
+        "body { font-family: 'Courier New', Courier, monospace; font-size: 11px; width: 170px; margin: 0 auto; padding: 5px; background: #fff; position: relative; } " +
+        "* { color: #000 !important; font-weight: 900 !important; } " + 
+        ".header-container { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 5px; } " +
+        ".loja-info { max-width: 100px; text-align: left; } " +
+        ".loja-info h2 { margin: 0; font-size: 12px; text-transform: uppercase; line-height: 1.1; } " +
+        ".loja-info p { margin: 2px 0 0 0; font-size: 9px; text-align: left; } " +
+        ".pedido-box { border: 1px solid #000; padding: 2px; text-align: center; background: #fff; min-width: 45px; } " +
+        ".pedido-box-label { font-size: 8px; text-transform: uppercase; display: block; margin-bottom: -2px; } " +
+        ".pedido-box-numero { font-size: 16px; display: block; line-height: 1.1; } " +
+        ".divider { border-top: 1px dashed #000; margin: 4px 0; } " +
+        "p.titulo-cupom { margin: 2px 0; text-align: center; font-size: 10px; } " +
+        "table { width: 100%; border-collapse: collapse; font-size: 10px; margin: 4px 0; } " +
+        "th { border-bottom: 1px dashed #000; padding-bottom: 2px; text-align: left; font-size: 10px; } " +
+        "td { padding: 2px 0; vertical-align: top; word-wrap: break-word; } " +
+        ".right { text-align: right; } .center { text-align: center; } " +
+        ".info-line { display: flex; justify-content: space-between; font-size: 10px; margin: 2px 0; }";
 
     const corpo = montarConteudoCupom(cupomSelecionadoAtual);
     const html = "<!DOCTYPE html><html><head><meta charset='UTF-8'><style>" + cssCupom + "</style></head><body>" + corpo + "</body></html>";
