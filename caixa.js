@@ -289,29 +289,30 @@ function imprimirCupom(itens, total, formaPagamento, valorRecebido, pagamentosDe
   if (valorRecebido !== null && parseFloat(valorRecebido) > total) troco = parseFloat(valorRecebido) - total;
 
   var cupomHTML = "<!DOCTYPE html><html><head><style>" +
-          "@page { margin: 0; } " +
-          "body { font-family: 'Courier New', Courier, monospace; font-size: 15px; width: 260px; margin: 0 auto; padding: 10px 5px; color: #000; position: relative; } " +
-          ".header-container { display: block; min-height: 55px; position: relative; margin-bottom: 5px; } " +
-          ".loja-info { width: 160px; text-align: left; } " +
-          ".loja-info h2 { margin: 0; font-size: 16px; font-weight: bold; text-transform: uppercase; line-height: 1.2; } " +
-          ".loja-info p { margin: 2px 0 0 0; font-size: 11px; text-align: left; } " +
-          ".pedido-box { position: absolute; top: 0; right: 0; border: 2px solid #000; padding: 4px 8px; text-align: center; background: #fff; min-width: 65px; } " +
-          ".pedido-box-label { font-size: 9px; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: -2px; } " +
-          ".pedido-box-numero { font-size: 26px; font-weight: bold; display: block; line-height: 1.1; } " +
-          ".divider { border-top: 1px dashed #000; margin: 5px 0; } " +
-          "p.titulo-cupom { margin: 2px 0; text-align: center; font-size: 13px; } " +
-          "table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 5px 0; } " +
-          "th { border-bottom: 1px dashed #000; padding-bottom: 3px; text-align: left; font-size: 13px; } " +
-          "td { padding: 3px 0; vertical-align: top; word-wrap: break-word; } " +
-          ".right { text-align: right; } .center { text-align: center; } .bold { font-weight: bold; } " +
-          ".info-line { display: flex; justify-content: space-between; font-size: 13px; margin: 2px 0; }" +
+          "* { box-sizing: border-box; } " +
+          "@page { size: 48mm auto; margin: 0; } " +
+          "body { font-family: 'Courier New', Courier, monospace; font-weight: 900; font-size: 9.5px; width: 44mm; margin: 0 auto; padding: 4px 0; color: #000; position: relative; -webkit-print-color-adjust: exact; } " +
+          ".header-container { display: block; min-height: 42px; position: relative; margin-bottom: 4px; } " +
+          ".loja-info { width: calc(100% - 48px); text-align: left; } " +
+          ".loja-info h2 { margin: 0; font-size: 11px; font-weight: 900; text-transform: uppercase; line-height: 1.1; word-wrap: break-word; } " +
+          ".loja-info p { margin: 1px 0 0 0; font-size: 8.5px; font-weight: 900; text-align: left; } " +
+          ".pedido-box { position: absolute; top: 0; right: 0; border: 2px solid #000; padding: 1px 2px; text-align: center; background: #fff; min-width: 44px; } " +
+          ".pedido-box-label { font-size: 8px; font-weight: 900; text-transform: uppercase; display: block; margin-bottom: -2px; } " +
+          ".pedido-box-numero { font-size: 18px; font-weight: 900; display: block; line-height: 1; } " +
+          ".divider { border-top: 1px dashed #000; margin: 3px 0; } " +
+          "p.titulo-cupom { margin: 2px 0; text-align: center; font-size: 10px; font-weight: 900; } " +
+          "table { width: 100%; border-collapse: collapse; font-size: 9.5px; margin: 3px 0; font-weight: 900; } " +
+          "th { border-bottom: 1px dashed #000; padding-bottom: 2px; text-align: left; font-size: 9.5px; font-weight: 900; } " +
+          "td { padding: 2px 0; vertical-align: top; word-wrap: break-word; } " +
+          ".right { text-align: right; } .center { text-align: center; } .bold { font-weight: 900; } " +
+          ".info-line { display: flex; justify-content: space-between; font-size: 9.5px; font-weight: 900; margin: 1px 0; }" +
           "</style></head><body>" +
           "<div class='header-container'>" +
             "<div class='loja-info'>" +
               "<h2>" + configLoja.nome + "</h2>" +
               "<p>CNPJ: " + configLoja.cnpj + "</p>" +
               "<p>IE: ISENTO</p>" +
-            ".</div>" +
+            "</div>" +
             "<div class='pedido-box'>" +
               "<span class='pedido-box-label'>PEDIDO</span>" +
               "<span class='pedido-box-numero'>" + numPedidoFormatado + "</span>" +
@@ -320,15 +321,15 @@ function imprimirCupom(itens, total, formaPagamento, valorRecebido, pagamentosDe
           "<div class='divider'></div>" +
           "<p class='bold titulo-cupom'>CUPOM NÃO FISCAL</p><div class='divider'></div>" +
           "<div class='info-line'><span>Data: " + dataHora + "</span></div>" +
-          "<div class='info-line'><span>Operador: " + operador + "</span><span>Cupom: " + cupomIdText + "</span></div><div class='divider'></div>" +
+          "<div class='info-line'><span>Op: " + operador + "</span><span>Cupom: " + cupomIdText + "</span></div><div class='divider'></div>" +
           "<table><thead><tr><th>QTD</th><th>DESCRIÇÃO</th><th class='right'>TOTAL</th></tr></thead><tbody>";
 
   itens.forEach(function(item) {
-      cupomHTML += "<tr><td class='center'>" + item.quantidade + "</td><td>" + item.nome.substring(0, 18) + "</td><td class='right'>" + (item.valor * item.quantidade).toFixed(2) + "</td></tr>";
+      cupomHTML += "<tr><td class='center'>" + item.quantidade + "</td><td>" + item.nome.substring(0, 11) + "</td><td class='right'>" + (item.valor * item.quantidade).toFixed(2) + "</td></tr>";
   });
 
   cupomHTML += "</tbody></table><div class='divider'></div>" +
-          "<div class='info-line bold' style='font-size: 15px;'><span>TOTAL A PAGAR:</span><span>R$ " + total.toFixed(2) + "</span></div><div class='divider'></div>";
+          "<div class='info-line bold' style='font-size: 10.5px;'><span>TOTAL A PAGAR:</span><span>R$ " + total.toFixed(2) + "</span></div><div class='divider'></div>";
 
   if (pagamentosDetalhados) {
        cupomHTML += "<p class='bold' style='text-align:left;'>PAGAMENTO MISTO:</p>";
@@ -336,21 +337,18 @@ function imprimirCupom(itens, total, formaPagamento, valorRecebido, pagamentosDe
            if (pagamentosDetalhados[f] > 0) cupomHTML += "<div class='info-line'><span>" + f + ":</span><span>R$ " + pagamentosDetalhados[f].toFixed(2) + "</span></div>";
        });
   } else {
-       cupomHTML += "<div class='info-line'><span>FORMA PAGAMENTO:</span><span>" + formaPagamento.toUpperCase() + "</span></div>";
+       cupomHTML += "<div class='info-line'><span>FORMA PAG:</span><span>" + formaPagamento.toUpperCase() + "</span></div>";
        if (valorRecebido !== null) {
-          cupomHTML += "<div class='info-line'><span>VALOR RECEBIDO:</span><span>R$ " + parseFloat(valorRecebido).toFixed(2) + "</span></div>" +
+          cupomHTML += "<div class='info-line'><span>VALOR REC:</span><span>R$ " + parseFloat(valorRecebido).toFixed(2) + "</span></div>" +
                        "<div class='info-line bold'><span>TROCO:</span><span>R$ " + troco.toFixed(2) + "</span></div>";
       }
   }
 
-  cupomHTML += "<div class='divider'></div><p style='margin-top: 10px; font-weight: bold; text-align: center;'>Obrigado pela preferência!</p><p style='text-align: center;'>Volte Sempre!</p></body></html>";
+  cupomHTML += "<div class='divider'></div><p style='margin-top: 6px; font-weight: 900; text-align: center;'>Obrigado pela preferência!</p><p style='text-align: center; font-weight: 900;'>Volte Sempre!</p></body></html>";
 
   doc.open(); doc.write(cupomHTML); doc.close();
   setTimeout(function() { iframe.contentWindow.focus(); iframe.contentWindow.print(); }, 500);
 }
-
-function fecharCaixa() { document.getElementById("modal-senha-fechamento").style.display = "flex"; }
-function fecharModalSenhaFechamento() { document.getElementById("modal-senha-fechamento").style.display = "none"; }
 
 function confirmarFechamentoCaixa() {
   var senha = document.getElementById('input-senha-fechar').value;
@@ -382,18 +380,19 @@ function confirmarFechamentoCaixa() {
   var configLoja = obterDados("configLoja") || { nome: "Nome da Loja", cnpj: "00.000.000/0000-00" };
 
   var htmlFechamento = "<!DOCTYPE html><html><head><style>" +
-      "@page { margin: 0; } " +
-      "body { font-family: 'Courier New', Courier, monospace; font-size: 15px; width: 260px; margin: 0 auto; padding: 10px 5px; color: #000; } " +
-      "h2, h3 { margin: 2px 0; text-align: center; font-size: 18px; font-weight: bold; text-transform: uppercase; } " +
-      "p { margin: 2px 0; text-align: center; font-size: 13px; } " +
-      ".divider { border-top: 1px dashed #000; margin: 5px 0; } " +
-      ".right { text-align: right; } .bold { font-weight: bold; } " +
-      ".info-line { display: flex; justify-content: space-between; font-size: 13px; margin: 3px 0; }" +
+      "* { box-sizing: border-box; } " +
+      "@page { size: 48mm auto; margin: 0; } " +
+      "body { font-family: 'Courier New', Courier, monospace; font-weight: 900; font-size: 9.5px; width: 44mm; margin: 0 auto; padding: 4px 0; color: #000; -webkit-print-color-adjust: exact; } " +
+      "h2, h3 { margin: 2px 0; text-align: center; font-size: 11px; font-weight: 900; text-transform: uppercase; } " +
+      "p { margin: 1px 0; text-align: center; font-size: 9.5px; font-weight: 900; } " +
+      ".divider { border-top: 1px dashed #000; margin: 3px 0; } " +
+      ".right { text-align: right; } .bold { font-weight: 900; } " +
+      ".info-line { display: flex; justify-content: space-between; font-size: 9.5px; font-weight: 900; margin: 1px 0; }" +
       "</style></head><body>" +
       "<h2>" + configLoja.nome + "</h2><p>CNPJ: " + configLoja.cnpj + "</p>" +
-      "<div class='divider'></div>  <h3>FECHAMENTO DE CAIXA</h3><div class='divider'></div>" +
+      "<div class='divider'></div><h3>FECHAMENTO DE CAIXA</h3><div class='divider'></div>" +
       "<div class='info-line'><span>Data:</span><span>" + dataAtualObj.toLocaleDateString('pt-BR') + "</span></div>" +
-      "<div class='info-line'><span>Hora Fechamento:</span><span>" + horaFechamento + "</span></div>" +
+      "<div class='info-line'><span>Hora Fech:</span><span>" + horaFechamento + "</span></div>" +
       "<div class='info-line'><span>Operador:</span><span>" + operador + "</span></div>" +
       "<div class='divider'></div><h3>VENDAS POR TIPO</h3>";
 
@@ -402,13 +401,13 @@ function confirmarFechamentoCaixa() {
   });
 
   htmlFechamento += "<div class='divider'></div><h3>RESUMO FINANCEIRO</h3>" +
-      "<div class='info-line'><span>Suprimento (Abertura):</span><span>R$ " + suprimento.toFixed(2) + "</span></div>" +
-      "<div class='info-line'><span>Sangrias/Despesas:</span><span>R$ " + sangriasTotal.toFixed(2) + "</span></div>" +
-      "<div class='info-line bold'><span>Total Bruto Vendas:</span><span>R$ " + totalBrutoVendas.toFixed(2) + "</span></div><div class='divider'></div>" +
-      "<div class='info-line bold' style='font-size:15px;'><span>VALOR LÍQUIDO:</span><span>R$ " + valorLiquido.toFixed(2) + "</span></div><div class='divider'></div>" +
-      "<div class='info-line bold'><span>CAIXA (Dinheiro Gaveta):</span><span>R$ " + dinheiroEsperadoGaveta.toFixed(2) + "</span></div>" +
-      "<p style='font-size: 11px;'>(Abertura + Vendas Dinheiro - Sangrias)</p>" +
-      "<div class='divider'></div><p style='margin-top:10px;'>*** FIM DO RESUMO ***</p></body></html>";
+      "<div class='info-line'><span>Suprimento:</span><span>R$ " + suprimento.toFixed(2) + "</span></div>" +
+      "<div class='info-line'><span>Sangrias:</span><span>R$ " + sangriasTotal.toFixed(2) + "</span></div>" +
+      "<div class='info-line bold'><span>Total Bruto:</span><span>R$ " + totalBrutoVendas.toFixed(2) + "</span></div><div class='divider'></div>" +
+      "<div class='info-line bold' style='font-size:10px;'><span>VALOR LÍQUIDO:</span><span>R$ " + valorLiquido.toFixed(2) + "</span></div><div class='divider'></div>" +
+      "<div class='info-line bold'><span>GAVETA:</span><span>R$ " + dinheiroEsperadoGaveta.toFixed(2) + "</span></div>" +
+      "<p style='font-size: 8.5px;'>(Abertura + Dinheiro - Sangrias)</p>" +
+      "<div class='divider'></div><p style='margin-top:6px; font-weight: 900;'>*** FIM DO RESUMO ***</p></body></html>";
 
   var iframe = document.getElementById("iframe-impressao");
   var doc = iframe.contentDocument || iframe.contentWindow.document;
@@ -539,4 +538,25 @@ function confirmarTroco() {
     if (rec < totalVenda) return alert("Valor recebido é menor que o total!");
     fecharModalTroco();
     finalizarVenda("Dinheiro", rec, null);
+}
+
+function fecharCaixa() {
+  var modal = document.getElementById('modal-senha-fechamento');
+  if (modal) {
+    modal.style.display = 'flex';
+    var inputSenha = document.getElementById('input-senha-fechar');
+    if (inputSenha) {
+      inputSenha.value = '';
+      inputSenha.focus();
+    }
+  } else {
+    confirmarFechamentoCaixa();
+  }
+}
+
+function fecharModalSenhaFechamento() {
+  var modal = document.getElementById('modal-senha-fechamento');
+  if (modal) {
+    modal.style.display = 'none';
+  }
 }
