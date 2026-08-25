@@ -81,55 +81,62 @@
       gap: 10px;
       margin-top: 15px;
       width: 100%;
-      max-width: 280px;
+      max-width: 170px;
       margin-left: auto;
       margin-right: auto;
     }
     .botoes-cupom-acoes button {
       flex: 1;
-      padding: 12px 10px;
+      padding: 10px 5px;
       font-weight: bold;
       border: none;
       border-radius: 5px;
       cursor: pointer;
-      font-size: 13px;
+      font-size: 11px;
       transition: 0.2s;
     }
     .botoes-cupom-acoes button:hover { filter: brightness(0.9); }
 
-    /* ===== Cupom térmico (preview) — espelha exatamente o impresso pelo caixa ===== */
+    /* ===== Cupom térmico para 50mm — ALTO CONTRASTE ===== */
     .cupom-print {
       font-family: 'Courier New', Courier, monospace;
-      font-size: 15px;
-      width: 260px;
+      font-size: 11px;
+      width: 170px;
       margin: 0 auto;
-      padding: 10px 5px;
-      color: #000;
-      background: #fffdf5;
+      padding: 5px;
+      background: #fff;
       border: 1px dashed #b5b5b5;
       box-shadow: 0 2px 6px rgba(0,0,0,0.05);
       position: relative;
     }
-    .cupom-print .header-container { display: block; min-height: 55px; position: relative; margin-bottom: 5px; }
-    .cupom-print .loja-info { width: 160px; text-align: left; }
-    .cupom-print .loja-info h2 { margin: 0; font-size: 16px; font-weight: bold; text-transform: uppercase; line-height: 1.2; }
-    .cupom-print .loja-info p { margin: 2px 0 0 0; font-size: 11px; text-align: left; }
-    .cupom-print .pedido-box {
-      position: absolute; top: 0; right: 0;
-      border: 2px solid #000; padding: 4px 8px; text-align: center;
-      background: #fff; min-width: 65px;
+    /* Força tudo dentro do cupom a ser preto e negrito para impressão térmica */
+    .cupom-print * {
+      color: #000 !important;
+      font-weight: 900 !important; 
     }
-    .cupom-print .pedido-box-label { font-size: 9px; font-weight: bold; text-transform: uppercase; display: block; margin-bottom: -2px; }
-    .cupom-print .pedido-box-numero { font-size: 26px; font-weight: bold; display: block; line-height: 1.1; }
-    .cupom-print .divider { border-top: 1px dashed #000; margin: 5px 0; }
-    .cupom-print p.titulo-cupom { margin: 2px 0; text-align: center; font-size: 13px; }
-    .cupom-print table { width: 100%; border-collapse: collapse; font-size: 13px; margin: 5px 0; }
-    .cupom-print th { border-bottom: 1px dashed #000; padding-bottom: 3px; text-align: left; font-size: 13px; }
-    .cupom-print td { padding: 3px 0; vertical-align: top; word-wrap: break-word; }
+    .cupom-print .header-container { 
+      display: flex; 
+      justify-content: space-between; 
+      align-items: flex-start; 
+      margin-bottom: 5px; 
+    }
+    .cupom-print .loja-info { max-width: 100px; text-align: left; }
+    .cupom-print .loja-info h2 { margin: 0; font-size: 12px; text-transform: uppercase; line-height: 1.1; }
+    .cupom-print .loja-info p { margin: 2px 0 0 0; font-size: 9px; text-align: left; }
+    .cupom-print .pedido-box {
+      border: 1px solid #000; padding: 2px; text-align: center;
+      background: #fff; min-width: 45px;
+    }
+    .cupom-print .pedido-box-label { font-size: 8px; text-transform: uppercase; display: block; margin-bottom: -2px; }
+    .cupom-print .pedido-box-numero { font-size: 16px; display: block; line-height: 1.1; }
+    .cupom-print .divider { border-top: 1px dashed #000; margin: 4px 0; }
+    .cupom-print p.titulo-cupom { margin: 2px 0; text-align: center; font-size: 10px; }
+    .cupom-print table { width: 100%; border-collapse: collapse; font-size: 10px; margin: 4px 0; }
+    .cupom-print th { border-bottom: 1px dashed #000; padding-bottom: 2px; text-align: left; font-size: 10px; }
+    .cupom-print td { padding: 2px 0; vertical-align: top; word-wrap: break-word; }
     .cupom-print .right { text-align: right; }
     .cupom-print .center { text-align: center; }
-    .cupom-print .bold { font-weight: bold; }
-    .cupom-print .info-line { display: flex; justify-content: space-between; font-size: 13px; margin: 2px 0; }
+    .cupom-print .info-line { display: flex; justify-content: space-between; font-size: 10px; margin: 2px 0; }
 
     @media (max-width: 768px) {
       .layout-dois-lados { flex-direction: column; }
