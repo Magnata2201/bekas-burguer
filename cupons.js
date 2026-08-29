@@ -1,4 +1,4 @@
-// cupons.js — pré-visualização e reimpressão ajustadas para 50mm alto contraste.
+// cupons.js — pré-visualização e reimpressão ajustadas para 50mm alto contraste com Cliente/Obs.
 
 function obterDados(chave) {
     const dados = localStorage.getItem(chave);
@@ -54,6 +54,8 @@ function carregarEAgruparCupons() {
                     hora: venda.hora || "--:--",
                     operador: venda.usuario || "Operador",
                     formaPagamento: venda.formaPagamento || "Dinheiro",
+                    cliente: venda.cliente || "",       // Puxando o cliente
+                    observacao: venda.observacao || "", // Puxando a observação
                     status: "venda",
                     itens: [],
                     total: 0
@@ -126,10 +128,11 @@ function renderizarListaCupons(lista) {
 
         const txtStatus = isCancelado ? " <span style='color:#c0392b;'>[CANCELADO]</span>" : "";
         const exibirTotal = isCancelado ? "R$ 0,00 (Estornado)" : "R$ " + cupom.total.toFixed(2);
+        const txtCliente = cupom.cliente ? " - " + cupom.cliente : "";
 
         div.innerHTML =
             "<h4>📦 Pedido N° " + cupom.numeroPedidoFormatado + txtStatus + "</h4>" +
-            "<p><strong>Hora:</strong> " + cupom.hora + "</p>" +
+            "<p><strong>Hora:</strong> " + cupom.hora + txtCliente + "</p>" +
             "<p><strong>Valor:</strong> " + exibirTotal + " (" + cupom.formaPagamento + ")</p>" +
             "<p><strong>Op:</strong> " + cupom.operador + "</p>";
 
@@ -146,7 +149,8 @@ function filtrarCupons() {
         let okT = true, okD = true;
         if (txt) {
             okT = c.idCupom.toUpperCase().includes(txt) ||
-                  c.numeroPedidoFormatado.includes(txt);
+                  c.numeroPedidoFormatado.includes(txt) ||
+                  (c.cliente && c.cliente.toUpperCase().includes(txt)); // Agora pesquisa por cliente também
         }
         if (dt) okD = (c.data === dt);
         return okT && okD;
@@ -199,6 +203,18 @@ function montarConteudoCupom(cupom) {
     html += "<div class='divider'></div>";
     html += "<div class='info-line'><span>" + dataHora + "</span></div>";
     html += "<div class='info-line'><span>Op:" + operador.substring(0,6) + "</span><span>ID:" + cupomIdText.substring(0,5) + "</span></div>";
+    
+    // INJEÇÃO DO CLIENTE E OBSERVAÇÃO
+    if (cupom.cliente || cupom.observacao) {
+        html += "<div class='divider'></div>";
+        if (cupom.cliente) {
+            html += "<div class='info-line'><span>CLIENTE:</span><span style='text-align: right;'>" + cupom.cliente.toUpperCase() + "</span></div>";
+        }
+        if (cupom.observacao) {
+            html += "<div style='font-size: 10px; margin: 3px 0; text-align: left;'>OBS: " + cupom.observacao.toUpperCase() + "</div>";
+        }
+    }
+
     html += "<div class='divider'></div>";
     html += "<table><thead><tr><th>QTD</th><th>DESC</th><th class='right'>TOT</th></tr></thead><tbody>";
     
@@ -249,7 +265,6 @@ function reimprimirCupomCentral() {
     const iframe = document.getElementById("iframe-impressao");
     const doc = iframe.contentDocument || iframe.contentWindow.document;
 
-    // Adicionado asterisco (*) forçando preto e bold máximo (!important)
     const cssCupom =
         "@page { margin: 0; } " +
         "body { font-family: 'Courier New', Courier, monospace; font-size: 11px; width: 170px; margin: 0 auto; padding: 5px; background: #fff; position: relative; } " +
