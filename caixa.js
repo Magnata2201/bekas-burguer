@@ -2,6 +2,7 @@ let vendaAtual = [];
 let totalVenda = 0;
 let resumoFormas = { Pix: 0, Crédito: 0, Débito: 0, Dinheiro: 0, Cheque: 0, VR: 0, Misto: 0 };
 let itemParaCancelar = null;
+let vendaPendenteInfo = null; // Guarda os dados do pagamento temporariamente
 
 function inicializarCaixaCompleto() {
     resumoFormas = obterDados("resumoFormas") || resumoFormas;
@@ -211,11 +212,38 @@ function reimprimirUltimoCupom() {
         ultima.valorRecebido !== undefined ? ultima.valorRecebido : null, 
         ultima.pagamentosDetalhados !== undefined ? ultima.pagamentosDetalhados : null, 
         ultima.idCupom,
-        ultima.numeroPedido
+        ultima.numeroPedido,
+        ultima.nomeCliente, 
+        ultima.obsVenda
     );
 }
 
 function finalizarVenda(formaPagamento, valorRecebido, pagamentosDetalhados) {
+    vendaPendenteInfo = { formaPagamento, valorRecebido, pagamentosDetalhados };
+    document.getElementById('modal-cliente-obs').style.display = 'flex';
+    document.getElementById('nome-cliente-venda').value = '';
+    document.getElementById('obs-venda').value = '';
+    document.getElementById('nome-cliente-venda').focus();
+}
+
+function fecharModalClienteObs() {
+    document.getElementById('modal-cliente-obs').style.display = 'none';
+}
+
+function confirmarDadosCliente() {
+    var nomeCliente = document.getElementById('nome-cliente-venda').value.trim();
+    var obsVenda = document.getElementById('obs-venda').value.trim();
+    fecharModalClienteObs();
+    concluirVendaComDados(
+        vendaPendenteInfo.formaPagamento, 
+        vendaPendenteInfo.valorRecebido, 
+        vendaPendenteInfo.pagamentosDetalhados, 
+        nomeCliente, 
+        obsVenda
+    );
+}
+
+function concluirVendaComDados(formaPagamento, valorRecebido, pagamentosDetalhados, nomeCliente, obsVenda) {
   var data = new Date();
   var offset = data.getTimezoneOffset() * 60000;
   var dataAtual = (new Date(data.getTime() - offset)).toISOString().split('T')[0];
@@ -244,7 +272,9 @@ function finalizarVenda(formaPagamento, valorRecebido, pagamentosDetalhados) {
       idCupom: idCupom, 
       tipoMovimento: 'venda', 
       data: dataAtual,
-      numeroPedido: numPedido
+      numeroPedido: numPedido,
+      cliente: nomeCliente, 
+      observacao: obsVenda  
     });
   });
 
@@ -257,7 +287,7 @@ function finalizarVenda(formaPagamento, valorRecebido, pagamentosDetalhados) {
   salvarDados("resumoFormas", resumoFormas);
   salvarDados("movimentacoes", movimentacoes);
   
-  imprimirCupom(vendaAtual, totalVenda, formaPagamento, valorRecebido, pagamentosDetalhados, idCupom, numPedido);
+  imprimirCupom(vendaAtual, totalVenda, formaPagamento, valorRecebido, pagamentosDetalhados, idCupom, numPedido, nomeCliente, obsVenda);
 
   salvarDados("numeroPedidoAtual", numPedido + 1);
 
@@ -266,14 +296,14 @@ function finalizarVenda(formaPagamento, valorRecebido, pagamentosDetalhados) {
   fecharModalPagamento();
 }
 
-function imprimirCupom(itens, total, formaPagamento, valorRecebido, pagamentosDetalhados, idCupom, numeroPedido) {
+function imprimirCupom(itens, total, formaPagamento, valorRecebido, pagamentosDetalhados, idCupom, numeroPedido, nomeCliente, obsVenda) {
   var iframe = document.getElementById("iframe-impressao");
   var doc = iframe.contentDocument || iframe.contentWindow.document;
   
   var vRecebidoSalvar = valorRecebido !== undefined && valorRecebido !== null ? valorRecebido : null;
   var pDetalhadosSalvar = pagamentosDetalhados !== undefined && pagamentosDetalhados !== null ? pagamentosDetalhados : null;
 
-  salvarDados("ultimaVenda", { itens: itens, total: total, formaPagamento: formaPagamento, valorRecebido: vRecebidoSalvar, pagamentosDetalhados: pDetalhadosSalvar, idCupom: idCupom, numeroPedido: numeroPedido });
+  salvarDados("ultimaVenda", { itens: itens, total: total, formaPagamento: formaPagamento, valorRecebido: vRecebidoSalvar, pagamentosDetalhados: pDetalhadosSalvar, idCupom: idCupom, numeroPedido: numeroPedido, nomeCliente: nomeCliente, obsVenda: obsVenda });
 
   var configLoja = obterDados("configLoja") || { nome: "Nome da Loja", cnpj: "00.000.000/0000-00" };
   var dataHora = new Date().toLocaleString("pt-BR");
@@ -321,8 +351,19 @@ function imprimirCupom(itens, total, formaPagamento, valorRecebido, pagamentosDe
           "<div class='divider'></div>" +
           "<p class='bold titulo-cupom'>CUPOM NÃO FISCAL</p><div class='divider'></div>" +
           "<div class='info-line'><span>Data: " + dataHora + "</span></div>" +
-          "<div class='info-line'><span>Op: " + operador + "</span><span>Cupom: " + cupomIdText + "</span></div><div class='divider'></div>" +
-          "<table><thead><tr><th>QTD</th><th>DESCRIÇÃO</th><th class='right'>TOTAL</th></tr></thead><tbody>";
+          "<div class='info-line'><span>Op: " + operador + "</span><span>Cupom: " + cupomIdText + "</span></div>";
+
+  if (nomeCliente || obsVenda) {
+      cupomHTML += "<div class='divider'></div>";
+      if (nomeCliente) {
+          cupomHTML += "<div class='info-line'><span>CLIENTE:</span><span style='text-align: right;'>" + nomeCliente.toUpperCase() + "</span></div>";
+      }
+      if (obsVenda) {
+          cupomHTML += "<div style='font-size: 9.5px; font-weight: 900; margin: 3px 0; text-align: left;'>OBS: " + obsVenda.toUpperCase() + "</div>";
+      }
+  }
+
+  cupomHTML += "<div class='divider'></div><table><thead><tr><th>QTD</th><th>DESCRIÇÃO</th><th class='right'>TOTAL</th></tr></thead><tbody>";
 
   itens.forEach(function(item) {
       cupomHTML += "<tr><td class='center'>" + item.quantidade + "</td><td>" + item.nome.substring(0, 11) + "</td><td class='right'>" + (item.valor * item.quantidade).toFixed(2) + "</td></tr>";
