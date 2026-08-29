@@ -240,6 +240,23 @@
     </div>
   </div>
 
+  <!-- NOVO MODAL: Dados do Cliente e Observação -->
+  <div id="modal-cliente-obs" class="modal">
+    <div class="modal-content">
+      <span class="close-button" onclick="fecharModalClienteObs()">&times;</span>
+      <h3>📝 Dados do Cliente (Opcional)</h3>
+      
+      <label for="nome-cliente-venda" style="margin-top: 10px; display: block;">Nome do Cliente:</label>
+      <input type="text" id="nome-cliente-venda" placeholder="Ex: João da Silva" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc;" onkeypress="if(event.key === 'Enter') document.getElementById('obs-venda').focus()" />
+      
+      <label for="obs-venda" style="margin-top: 10px; display: block;">Observação:</label>
+      <textarea id="obs-venda" placeholder="Ex: Sem cebola, entregar na porta..." rows="3" style="width: 100%; padding: 10px; border-radius: 6px; border: 1px solid #ccc; resize: none;" onkeypress="if(event.key === 'Enter' && !event.shiftKey) { event.preventDefault(); confirmarDadosCliente(); }"></textarea>
+      
+      <button onclick="confirmarDadosCliente()" class="confirm">🖨️ Finalizar e Imprimir</button>
+      <button onclick="fecharModalClienteObs()" class="cancel">Voltar</button>
+    </div>
+  </div>
+
   <script src="caixa.js"></script>
 </body>
 </html>
