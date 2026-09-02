@@ -356,10 +356,10 @@ function imprimirCupom(itens, total, formaPagamento, valorRecebido, pagamentosDe
   if (nomeCliente || obsVenda) {
       cupomHTML += "<div class='divider'></div>";
       if (nomeCliente) {
-          cupomHTML += "<div class='info-line'><span>CLIENTE:</span><span style='text-align: right;'>" + nomeCliente.toUpperCase() + "</span></div>";
+          cupomHTML += "<div style='font-size: 9.5px; font-weight: 900; margin: 2px 0; text-align: left;'>CLIENTE: " + nomeCliente.toUpperCase() + "</div>";
       }
       if (obsVenda) {
-          cupomHTML += "<div style='font-size: 9.5px; font-weight: 900; margin: 3px 0; text-align: left;'>OBS: " + obsVenda.toUpperCase() + "</div>";
+          cupomHTML += "<div style='font-size: 9.5px; font-weight: 900; margin: 2px 0; text-align: left;'>OBS: " + obsVenda.toUpperCase() + "</div>";
       }
   }
 
