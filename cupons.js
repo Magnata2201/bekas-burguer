@@ -204,11 +204,11 @@ function montarConteudoCupom(cupom) {
     html += "<div class='info-line'><span>" + dataHora + "</span></div>";
     html += "<div class='info-line'><span>Op:" + operador.substring(0,6) + "</span><span>ID:" + cupomIdText.substring(0,5) + "</span></div>";
     
-    // INJEÇÃO DO CLIENTE E OBSERVAÇÃO
+    // INJEÇÃO DO CLIENTE E OBSERVAÇÃO ALINHADOS À ESQUERDA
     if (cupom.cliente || cupom.observacao) {
         html += "<div class='divider'></div>";
         if (cupom.cliente) {
-            html += "<div class='info-line'><span>CLIENTE:</span><span style='text-align: right;'>" + cupom.cliente.toUpperCase() + "</span></div>";
+            html += "<div style='font-size: 10px; margin: 3px 0; text-align: left;'>CLIENTE: " + cupom.cliente.toUpperCase() + "</div>";
         }
         if (cupom.observacao) {
             html += "<div style='font-size: 10px; margin: 3px 0; text-align: left;'>OBS: " + cupom.observacao.toUpperCase() + "</div>";
